@@ -29,3 +29,11 @@ There is a `variables.py` file with information you have to fill. I have tested 
 By default gmail doesn't allow you to log in to your mail account with email and password. You will have to create an app password for that.
 
 How you would go about doing that is in this [link](https://help.warmupinbox.com/en/articles/4934806-configure-for-google-workplace-with-two-factor-authentication-2fa).
+
+## Automation
+
+You can use [cron](https://opensource.com/article/17/11/how-use-cron-linux) on Linux or Task Scheduler on Windows to automate the script running process.
+
+For Windows, you'd have to put `python main.py` inside a `.bat` or `.ps1` file and use Task Scheduler.
+
+I haven't used any MacOS devices but cron should be available on there as well since it's a UNIX based distro. I have even less information about BSD but I would assume it has cron or a close equivalent.
