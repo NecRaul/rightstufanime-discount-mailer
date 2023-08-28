@@ -11,7 +11,7 @@ Mails you if anything on your public wishlist is on discount.
 You can install these packages by running
 
 ```Python
-pip install -r requirements
+pip install -r requirements.txt
 ```
 
 Python's native `email`, `smtplib` and `ssl` packages are used to send mail once all the important information has been acquired.
