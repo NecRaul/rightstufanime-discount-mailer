@@ -1,6 +1,7 @@
 from bs4 import BeautifulSoup
 import requests
 import variables
+import item_class
 
 # provide a link starting with http/https
 # requests doesn't recognize it otherwise
@@ -17,7 +18,7 @@ if page_numbers != []:  # if the number of pages is more than 1, code below will
     for page_number in page_numbers:
         r = requests.get(variables.website + "?page=" + page_number.text)
         soup = BeautifulSoup(r.content, "lxml")
-        item_array = []
+        item_array = item_class.FindDiscountedItem(soup)
 
 else:  # if the number of pages is 1, code below will execute
-    item_array = []
+    item_array = item_class.FindDiscountedItem(soup)
