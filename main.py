@@ -1,7 +1,10 @@
-from bs4 import BeautifulSoup
 import requests
+from bs4 import BeautifulSoup
+from email.mime.multipart import MIMEMultipart
+from email.mime.text import MIMEText
 import variables
 import item_class
+import mail
 
 # provide a link starting with http/https
 # requests doesn't recognize it otherwise
@@ -22,3 +25,40 @@ if page_numbers != []:  # if the number of pages is more than 1, code below will
 
 else:  # if the number of pages is 1, code below will execute
     item_array = item_class.FindDiscountedItem(soup)
+    
+message = MIMEMultipart("alternative")
+message["Subject"] = variables.email_subject
+message["From"] = variables.sender_email
+message["To"] = variables.receiver_email
+
+# Create the plain-text and HTML version of your message
+plain = ""
+html_start = "<html>\n\t<body>"
+html_body = ""
+html_end = "\n\t</body>\n</html>"
+
+for item in item_array:
+    plain = plain + item.name + " - $" + str(item.price) + ":" + item.link + "\n"
+    html_body = (
+        html_body
+        + '\n\t\t<p><a href="'
+        + item.link
+        + '">'
+        + item.name
+        + "</a> - $"
+        + str(item.price)
+        + "</p>"
+    )
+
+html = html_start + html_body + html_end
+
+# Turn these into plain/html MIMEText objects
+part1 = MIMEText(plain, "plain")
+part2 = MIMEText(html, "html")
+
+# Add HTML/plain-text parts to MIMEMultipart message
+# The email client will try to render the last part first
+message.attach(part1)
+message.attach(part2)
+
+mail.SendMail(message.as_string())
