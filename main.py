@@ -6,6 +6,8 @@ import variables
 import item_class
 import mail
 
+mail_check = False
+
 # provide a link(s) starting with http/https
 # requests doesn't recognize it otherwise
 for website in variables.websites:
@@ -28,6 +30,7 @@ for website in variables.websites:
         item_array = item_class.FindDiscountedItem(soup)
         
     if len(item_array) != 0: # if any item is on sale, it will send you mail
+        mail_check = True
         message = MIMEMultipart("alternative")
         message["Subject"] = variables.email_subject
         message["From"] = variables.sender_email
@@ -63,4 +66,5 @@ for website in variables.websites:
         message.attach(part1)
         message.attach(part2)
 
-mail.SendMail(message.as_string())
+if (mail_check):
+    mail.SendMail(message.as_string())
