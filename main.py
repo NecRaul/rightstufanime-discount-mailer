@@ -7,43 +7,46 @@ import variables
 import item_class
 import mail
 
-mail_boolean = False
-url_number = 0
-
 def url_check(url):
     pattern = "^https://www.rightstufanime.com/pl/.*$"
     return re.match(pattern, url) is not None
-
-def mail_check(mail):
-    pattern = "([A-Za-z0-9]+[.-_])*[A-Za-z0-9]+@[A-Za-z0-9-]+(\\.[A-Z|a-z]{2,})+"
-    return re.match(pattern, mail) is not None
-
-sender_boolean = mail_check(variables.sender_email)
-receiver_boolean = mail_check(variables.receiver_email)
+    
+def process_url(url):
+    # checking if the url is valid
+    is_valid_url = url_check(url)
+    
+    # adding https:// to the start of the string if url is not valid
+    url = f"https://{url}" if not is_valid_url else url
+    
+    # checking if the url is valid again
+    is_valid_url = url_check(url)
+    
+    if (not is_valid_url):
+        print("URL", url, "is not a rightstufanime public wishlist.")
+        return None
+    else:
+        return url
         
-if not sender_boolean and not receiver_boolean:
-    print("Sender email and receiver email is incorrect.")
-elif not sender_boolean:
-    print("Sender email is incorrect.")
-elif not receiver_boolean:
-    print("Receiver email is incorrect.")
-else:
-    # provide a link(s) starting with http/https
-    # requests doesn't recognize it otherwise
+def create_email_message(item_array):
+    plain = ""
+    html = "<html>\n\t<body>"
+    for item in item_array:
+        plain += f"{item.name} - ${item.price}:{item.link}\n"
+        html += f"\n\t\t<p><a href=\"{item.link}\">{item.name}</a> - ${item.price}</p>"
+    html += "\n\t</body>\n</html>"
+    mail.send_check = True
+    return [plain, html] # plain-text and HTML version of your message
+
+if (mail.validity_check):
+    # setting up mail attributes for later
+    message = MIMEMultipart("alternative")
+    message["Subject"] = variables.email_subject
+    message["From"] = variables.sender_email
+    message["To"] = variables.receiver_email
+    
     for url in variables.urls:
-        # checking if the url is valid
-        is_valid_url = url_check(url)
-        
-        # adding https:// to the start of the string if url is not valid
-        url = f"https://{url}" if not is_valid_url else url
-        
-        # checking if the url is valid again
-        is_valid_url = url_check(url)
-        
-        if (not is_valid_url):
-            url_number += 1
-            print("URL", url_number, "is not a rightstufanime public wishlist.")
-        else:
+        url = process_url(url) if process_url(url) else None
+        if (url):
             r = requests.get(url)
 
             # parsing the content from the url with BeautifulSoup + lxml
@@ -57,46 +60,21 @@ else:
                 for page_number in page_numbers:
                     r = requests.get(url + "?page=" + page_number.text)
                     soup = BeautifulSoup(r.content, "lxml")
-                    item_array = item_class.FindDiscountedItem(soup)
+                    item_array = item_class.find_discounted_item(soup)
             else:  # if the number of pages is 1
-                item_array = item_class.FindDiscountedItem(soup)
+                item_array = item_class.find_discounted_item(soup)
                 
-            if len(item_array) != 0:
-                mail_boolean = True # if any item in any url is on sale, it will send you mail
-                message = MIMEMultipart("alternative")
-                message["Subject"] = variables.email_subject
-                message["From"] = variables.sender_email
-                message["To"] = variables.receiver_email
-
-                # create the plain-text and HTML version of your message
-                plain = ""
-                html_start = "<html>\n\t<body>"
-                html_body = ""
-                html_end = "\n\t</body>\n</html>"
-
-                for item in item_array:
-                    plain = plain + item.name + " - $" + str(item.price) + ":" + item.link + "\n"
-                    html_body = (
-                        html_body
-                        + '\n\t\t<p><a href="'
-                        + item.link
-                        + '">'
-                        + item.name
-                        + "</a> - $"
-                        + str(item.price)
-                        + "</p>"
-                    )
-
-                html = html_start + html_body + html_end
+            if len(item_array) != 0: # if any item in any url is on sale, it will send you mail
+                message_parts = create_email_message(item_array)
 
                 # turn these into plain/html MIMEText objects
-                part1 = MIMEText(plain, "plain")
-                part2 = MIMEText(html, "html")
+                part1 = MIMEText(message_parts[0], "plain")
+                part2 = MIMEText(message_parts[1], "html")
 
                 # add HTML/plain-text parts to MIMEMultipart message
                 # the email client will try to render the last part first
                 message.attach(part1)
                 message.attach(part2)
 
-    if (mail_boolean):
-        mail.SendMail(message.as_string())
+    if (mail.send_check):
+        mail.send_mail(message.as_string())

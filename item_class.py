@@ -10,10 +10,7 @@ class Item:
 # item array to contain items that we consider discounted
 item_array = []
 
-
-def FindDiscountedItem(
-    soup,
-):
+def find_discounted_item(soup):
     # information about the twelve items in the current page
     items_content = soup.find_all(
         "div", class_="facets-items-collection-view-cell-span3"
