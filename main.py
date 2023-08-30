@@ -11,7 +11,7 @@ mail_boolean = False
 url_number = 0
 
 def url_check(url):
-    pattern = "^https?:\\/\\/(?:www\\.)?[-a-zA-Z0-9@:%._\\+~#=]{1,256}\\.[a-zA-Z0-9()]{1,6}\\b(?:[-a-zA-Z0-9()@:%_\\+.~#?&\\/=]*)$"
+    pattern = "^https://www.rightstufanime.com/pl/.*$"
     return re.match(pattern, url) is not None
 
 def mail_check(mail):
@@ -42,7 +42,7 @@ else:
         
         if (not is_valid_url):
             url_number += 1
-            print("URL ", url_number, " is incorrect.")
+            print("URL", url_number, "is not a rightstufanime public wishlist.")
         else:
             r = requests.get(url)
 
