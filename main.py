@@ -8,7 +8,7 @@ import item_class
 import mail
 
 mail_check = False
-website_number = 0
+url_number = 0
 
 def url_check(url):
     pattern = "^https?:\\/\\/(?:www\\.)?[-a-zA-Z0-9@:%._\\+~#=]{1,256}\\.[a-zA-Z0-9()]{1,6}\\b(?:[-a-zA-Z0-9()@:%_\\+.~#?&\\/=]*)$"
@@ -16,23 +16,23 @@ def url_check(url):
 
 # provide a link(s) starting with http/https
 # requests doesn't recognize it otherwise
-for website in variables.websites:
-    # checking if the website is valid
-    is_valid_url = url_check(website)
+for url in variables.urls:
+    # checking if the url is valid
+    is_valid_url = url_check(url)
     
-    # adding https:// to the start of the string if website is not valid
-    website = f"https://{website}" if not is_valid_url else website
+    # adding https:// to the start of the string if url is not valid
+    url = f"https://{url}" if not is_valid_url else url
     
-    # checking if the website is valid again
-    is_valid_url = url_check(website)
+    # checking if the url is valid again
+    is_valid_url = url_check(url)
     
     if (not is_valid_url):
-        website_number += 1
-        print("URL ", website_number, " is incorrect.")
+        url_number += 1
+        print("URL ", url_number, " is incorrect.")
     else:
-        r = requests.get(website)
+        r = requests.get(url)
 
-        # parsing the content from the website with BeautifulSoup + lxml
+        # parsing the content from the url with BeautifulSoup + lxml
         soup = BeautifulSoup(r.content, "lxml")
 
         # it only gets the first 12 items on the list
@@ -41,14 +41,14 @@ for website in variables.websites:
 
         if page_numbers != []:  # if the number of pages is more than 1
             for page_number in page_numbers:
-                r = requests.get(website + "?page=" + page_number.text)
+                r = requests.get(url + "?page=" + page_number.text)
                 soup = BeautifulSoup(r.content, "lxml")
                 item_array = item_class.FindDiscountedItem(soup)
         else:  # if the number of pages is 1
             item_array = item_class.FindDiscountedItem(soup)
             
         if len(item_array) != 0:
-            mail_check = True # if any item in any website is on sale, it will send you mail
+            mail_check = True # if any item in any url is on sale, it will send you mail
             message = MIMEMultipart("alternative")
             message["Subject"] = variables.email_subject
             message["From"] = variables.sender_email

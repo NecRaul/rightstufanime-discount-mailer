@@ -21,4 +21,4 @@ email_subject = "Discounted Items"
 base_price = 11.19
 
 # public wishlist(s)
-websites = [""]
+urls = [""]
