@@ -20,5 +20,5 @@ email_subject = "Discounted Items"
 # base price to compare items to
 base_price = 11.19
 
-# public wishlist
-website = ""
+# public wishlist(s)
+websites = [""]
