@@ -1,6 +1,6 @@
 # rightstufanime-discount-mailer
 
-Mails you if anything on your public wishlist is on discount.
+Mails you if anything on your public wishlist(s) is on discount.
 
 ## Requirements
 
@@ -14,11 +14,11 @@ You can install these packages by running
 pip install -r requirements.txt
 ```
 
-Python's native `email`, `smtplib` and `ssl` packages are used to send mail once all the important information has been acquired.
+Python's native `email`, `smtplib` and `ssl` packages are used to send mail once all the important information has been acquired. `re` is used to validate the urls and mails.
 
 ## How it works
 
-You have to have a public wishlist with more than 1 item in it. Each time you run the script, it will check all the items on your wishlist, compare it to the price you have specified, if any of them have gone below the specified price, you'll recieve an email.
+You have to have a public wishlist(s) with more than 1 item in it. Each time you run the script, it will check all the items on your wishlist, compare it to the price you have specified, if any of them have gone below the specified price, you'll recieve an email with all the discounted items listed, along with their link and price.
 
 ## Variables
 
@@ -37,3 +37,13 @@ You can use [cron](https://opensource.com/article/17/11/how-use-cron-linux) on L
 For Windows, you'd have to put `python main.py` inside a `.bat` or `.ps1` file and use Task Scheduler.
 
 I haven't used any MacOS devices but cron should be available on there as well since it's a UNIX based distro. I have even less information about BSD but I would assume it has cron or a close equivalent.
+
+## If you couldn't get it to work
+
+It's probably because of the urls list in `variables.py`. Here's an example of how it should look like:
+
+```Python
+urls = ["https://www.rightstufanime.com/pl/1",
+        "https://www.rightstufanime.com/pl/2",
+        "https://www.rightstufanime.com/pl/3"]
+```
