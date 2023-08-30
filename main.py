@@ -37,7 +37,7 @@ def create_email_message(item_array):
     mail.send_check = True
     return [plain, html] # plain-text and HTML version of your message
 
-if (mail.validity_check):
+if (mail.email_check and mail.password_check):
     # setting up mail attributes for later
     message = MIMEMultipart("alternative")
     message["Subject"] = variables.email_subject
