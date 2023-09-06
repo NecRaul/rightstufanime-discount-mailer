@@ -37,44 +37,48 @@ def create_email_message(item_array):
     mail.send_check = True
     return [plain, html] # plain-text and HTML version of your message
 
-if (mail.email_check and mail.password_check):
-    # setting up mail attributes for later
-    message = MIMEMultipart("alternative")
-    message["Subject"] = variables.email_subject
-    message["From"] = variables.sender_email
-    message["To"] = variables.receiver_email
-    
-    for url in variables.urls:
-        url = process_url(url) if process_url(url) else None
-        if (url):
-            r = requests.get(url)
+def main():
+    if (mail.email_check and mail.password_check):
+        # setting up mail attributes for later
+        message = MIMEMultipart("alternative")
+        message["Subject"] = variables.email_subject
+        message["From"] = variables.sender_email
+        message["To"] = variables.receiver_email
+        
+        for url in variables.urls:
+            url = process_url(url) if process_url(url) else None
+            if (url):
+                r = requests.get(url)
 
-            # parsing the content from the url with BeautifulSoup + lxml
-            soup = BeautifulSoup(r.content, "lxml")
+                # parsing the content from the url with BeautifulSoup + lxml
+                soup = BeautifulSoup(r.content, "lxml")
 
-            # it only gets the first 12 items on the list
-            # i get the number of pages (if it exists) to do more than 12
-            page_numbers = soup.find_all("li", class_="global-views-pagination-links-number")
+                # it only gets the first 12 items on the list
+                # i get the number of pages (if it exists) to do more than 12
+                page_numbers = soup.find_all("li", class_="global-views-pagination-links-number")
 
-            if page_numbers != []:  # if the number of pages is more than 1
-                for page_number in page_numbers:
-                    r = requests.get(url + "?page=" + page_number.text)
-                    soup = BeautifulSoup(r.content, "lxml")
+                if page_numbers != []:  # if the number of pages is more than 1
+                    for page_number in page_numbers:
+                        r = requests.get(url + "?page=" + page_number.text)
+                        soup = BeautifulSoup(r.content, "lxml")
+                        item_array = item_class.find_discounted_item(soup)
+                else:  # if the number of pages is 1
                     item_array = item_class.find_discounted_item(soup)
-            else:  # if the number of pages is 1
-                item_array = item_class.find_discounted_item(soup)
-                
-            if len(item_array) != 0: # if any item in any url is on sale, it will send you mail
-                message_parts = create_email_message(item_array)
+                    
+                if len(item_array) != 0: # if any item in any url is on sale, it will send you mail
+                    message_parts = create_email_message(item_array)
 
-                # turn these into plain/html MIMEText objects
-                part1 = MIMEText(message_parts[0], "plain")
-                part2 = MIMEText(message_parts[1], "html")
+                    # turn these into plain/html MIMEText objects
+                    part1 = MIMEText(message_parts[0], "plain")
+                    part2 = MIMEText(message_parts[1], "html")
 
-                # add HTML/plain-text parts to MIMEMultipart message
-                # the email client will try to render the last part first
-                message.attach(part1)
-                message.attach(part2)
+                    # add HTML/plain-text parts to MIMEMultipart message
+                    # the email client will try to render the last part first
+                    message.attach(part1)
+                    message.attach(part2)
 
-    if (mail.send_check):
-        mail.send_mail(message.as_string())
+        if (mail.send_check):
+            mail.send_mail(message.as_string())
+
+if __name__ == "__main__":
+    main()
