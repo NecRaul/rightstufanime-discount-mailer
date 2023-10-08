@@ -2,6 +2,12 @@
 
 Mails you if anything on your public wishlist(s) is on discount.
 
+This repository is archived due to rightstufanime shutting down their services.
+
+## Public Archive
+
+As October 10, 2023 rightstufanime shut down their services.
+
 ## Requirements
 
 `requests` is used to get the website content.
